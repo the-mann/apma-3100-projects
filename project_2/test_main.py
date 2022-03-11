@@ -32,9 +32,13 @@ class Test(TestCase):
             x = 0
             for i in range(4):
                 g = guess_time_till_pickup(rand_numbers[4 * j + i])
+
                 x += g[0] if g[1] else 0
+                # stop
+                if g[1]:
+                    break
             z.append(x)
-        self.assertAlmostEqual(41, statistics.fmean(z), 1)
+        self.assertAlmostEqual(17.214436477758387, statistics.fmean(z), 1)
 
     def test_average_random_number_2_decimal_places(self):
         x = [x_i for x_i in rand_num_generator(100000)]
@@ -43,3 +47,9 @@ class Test(TestCase):
 
     def test_sum_of_cdf(self):
         self.assertEqual(1, cdf(100000))
+
+    def test_greater_than_25(self):
+        self.assertAlmostEqual(0.12451447144412309, 1 - cdf(25))
+
+    def test_less_than_6(self):
+        self.assertAlmostEqual(0.3934693402873666, cdf(6))
