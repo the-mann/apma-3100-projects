@@ -1,7 +1,7 @@
 import statistics
 from unittest import TestCase
 
-from project_2.main import rand_num_generator, cdf, cdf_inv, OutOfDomainError, guess_time_till_pickup
+from project_2.main import rand_num_generator, cdf, cdf_inv, OutOfDomainError, guess_time_till_pickup, MonteCarloStats
 
 
 class Test(TestCase):
@@ -23,22 +23,29 @@ class Test(TestCase):
 
     def test_average_of_guess_time_till_pickup(self):
         x = [guess_time_till_pickup(cdf(n))[0] for n in rand_num_generator(10000)]
-        self.assertAlmostEqual(9, statistics.mean(x))
+        self.assertAlmostEqual(10, statistics.mean(x))
 
     def test_million_person_4_times(self):
-        rand_numbers = [x for x in rand_num_generator(10000000)]
+        stats = MonteCarloStats()
+        rand_numbers = [x for x in rand_num_generator(4000)]
         z = []
-        for j in range(1000000):
+        for j in range(1000):
             x = 0
+            i = 0
             for i in range(4):
-                g = guess_time_till_pickup(rand_numbers[4 * j + i])
-
-                x += g[0] if g[1] else 0
+                i += 1
+                g = guess_time_till_pickup(rand_numbers.pop(), stats)
+                x += g[0]
                 # stop
                 if g[1]:
                     break
-            z.append(x)
-        self.assertAlmostEqual(17.214436477758387, statistics.fmean(z), 1)
+            z.append(x / i)
+        self.assertAlmostEqual(.2, stats.times_busy / stats.total_times, 1)
+        self.assertAlmostEqual(.3, stats.times_unavailable / stats.total_times, 1)
+        self.assertAlmostEqual(.5, stats.times_available() / stats.total_times, 1)
+        self.assertAlmostEqual(.5 - .124, stats.times_picked_up / stats.total_times, 2)
+        self.assertAlmostEqual(0.124, stats.times_rang_out / stats.total_times, 2)
+        self.assertAlmostEqual(22.67, statistics.fmean(z), 2)
 
     def test_average_random_number_2_decimal_places(self):
         x = [x_i for x_i in rand_num_generator(100000)]

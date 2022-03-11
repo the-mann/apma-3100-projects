@@ -53,26 +53,58 @@ def cdf_inv(u_i):
     return x_i
 
 
-def guess_time_till_pickup(u_i):
+class MonteCarloStats:
+    def __init__(self):
+        self.times_rang_out = 0
+        self.times_busy = 0
+        self.times_unavailable = 0
+
+        self.times_picked_up = 0
+        self.total_times = 0
+
+    def busy(self):
+        self.total_times += 1
+        self.times_busy += 1
+
+    def unavailable(self):
+        self.total_times += 1
+        self.times_unavailable += 1
+
+    def available_picked_up(self):
+        self.total_times += 1
+        self.times_picked_up += 1
+
+    def didnt_get_to_phone_in_time(self):
+        self.times_rang_out += 1
+        self.total_times += 1
+
+    def times_available(self):
+        return self.times_rang_out + self.times_picked_up
+
+
+def guess_time_till_pickup(u_i, stats=MonteCarloStats()):
     """
     No matter what, it will take her 6 seconds at least.
     If x_i1 > .2, customer is not busy. otherwise, customer is busy and hang up immediately
+    :param stats:
     :param u_i: The random number between 0 and 1 for checking if customer is busy or unavailable
     """
     # Initial time to start up phone
     time_till_pickup = 6
 
     if u_i < 0.2:
-        return time_till_pickup + 3, False
-    elif u_i < 0.3:
+        stats.busy()
+        return time_till_pickup + 3 + 1, False
+    elif .2 < u_i < .5:
+        stats.unavailable()
         return time_till_pickup + 25 + 1, False
     else:
         # If neither of these variables are true, check what the expected time is for supplied probability
 
         # Note that we will only wait for 25 seconds. If it takes longer than that, we'll hang up
         if cdf_inv(u_i) > 25:
+            stats.didnt_get_to_phone_in_time()
             return time_till_pickup + 25 + 1, False
         else:
+            stats.available_picked_up()
             return time_till_pickup + cdf_inv(u_i), True
-
-
