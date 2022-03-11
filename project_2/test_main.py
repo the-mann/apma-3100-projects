@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from project_2.main import rand_num, cdf, cdf_inv
+from project_2.main import rand_num, cdf, cdf_inv, OutOfDomainError
 
 
 class Test(TestCase):
@@ -15,3 +15,9 @@ class Test(TestCase):
     def test_cdf_inverse_is_inverse(self):
         self.assertAlmostEqual(cdf(50), 0.0012919877999174442)
         self.assertAlmostEqual(cdf_inv(0.0012919877999174442), 50)
+
+    def test_cdf_less_than_zero(self):
+        with self.assertRaises(OutOfDomainError) as cm:
+            cdf(-1)
+        with self.assertRaises(OutOfDomainError) as cm:
+            cdf_inv(1.0000001)
