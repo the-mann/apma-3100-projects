@@ -35,7 +35,6 @@ class Test(TestCase):
         stats = MonteCarloStats()
         rand_numbers = [x for x in rand_num_generator(4000000)]
         rand_numbers.reverse()
-        rand_numbers_2 = [x for x in rand_num_generator(4000000)]
         # rand_numbers_2 = rand_numbers_2[4:]
         z = []
         for j in range(100000):
