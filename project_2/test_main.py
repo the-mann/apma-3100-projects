@@ -6,10 +6,16 @@ from project_2.main import rand_num_generator, cdf, cdf_inv, OutOfDomainError, g
 
 class Test(TestCase):
     def test_first_three_numbers(self):
-        self.assertListEqual([round(i, 4) for i in rand_num_generator(3)], [0.4195, 0.0425, 0.1274])
+        self.assertListEqual([round(i, 4) for i in rand_num_generator(4)], [0.4195, 0.0425, 0.1274, 0.9955])
+        self.assertListEqual([cdf_inv(i) for i in rand_num_generator(4)],
+                             [6.525801577240943, 0.5214836201646981, 1.6353810411952014, 64.88130145944533])
+
 
     def test_51_52_53(self):
-        self.skipTest("not implemented")
+        list_of_rand_numbers = [x for x in rand_num_generator(100)]
+        self.assertAlmostEqual(0.5157089233398438, list_of_rand_numbers[50])
+        self.assertAlmostEqual(0.427276611328125, list_of_rand_numbers[51])
+        self.assertAlmostEqual(0.7681961059570312, list_of_rand_numbers[52])
 
     def test_cdf_inverse_is_inverse(self):
         self.assertAlmostEqual(cdf(50), 0.9844961464009907)
@@ -27,25 +33,32 @@ class Test(TestCase):
 
     def test_million_person_4_times(self):
         stats = MonteCarloStats()
-        rand_numbers = [x for x in rand_num_generator(4000)]
+        rand_numbers = [x for x in rand_num_generator(4000000)]
+        rand_numbers.reverse()
+        rand_numbers_2 = [x for x in rand_num_generator(4000000)]
+        # rand_numbers_2 = rand_numbers_2[4:]
         z = []
-        for j in range(1000):
+        for j in range(100000):
             x = 0
-            i = 0
             for i in range(4):
-                i += 1
                 g = guess_time_till_pickup(rand_numbers.pop(), stats)
                 x += g[0]
                 # stop
                 if g[1]:
                     break
-            z.append(x / i)
+            z.append(x)
+
         self.assertAlmostEqual(.2, stats.times_busy / stats.total_times, 1)
         self.assertAlmostEqual(.3, stats.times_unavailable / stats.total_times, 1)
+        # Case 3 - .5 = .124 + (.5 0 .124)
         self.assertAlmostEqual(.5, stats.times_available() / stats.total_times, 1)
+
+        # Case 3.a - pick up
         self.assertAlmostEqual(.5 - .124, stats.times_picked_up / stats.total_times, 2)
-        self.assertAlmostEqual(0.124, stats.times_rang_out / stats.total_times, 2)
-        self.assertAlmostEqual(22.67, statistics.fmean(z), 2)
+        # Case 3.b - don't reach the phone in time
+        self.assertAlmostEqual(0.124, stats.didnt_reach_phone / stats.total_times, 2)
+
+        self.assertEqual(52.89081954200399, statistics.mean(z))
 
     def test_average_random_number_2_decimal_places(self):
         x = [x_i for x_i in rand_num_generator(100000)]

@@ -55,7 +55,7 @@ def cdf_inv(u_i):
 
 class MonteCarloStats:
     def __init__(self):
-        self.times_rang_out = 0
+        self.didnt_reach_phone = 0
         self.times_busy = 0
         self.times_unavailable = 0
 
@@ -75,11 +75,11 @@ class MonteCarloStats:
         self.times_picked_up += 1
 
     def didnt_get_to_phone_in_time(self):
-        self.times_rang_out += 1
+        self.didnt_reach_phone += 1
         self.total_times += 1
 
     def times_available(self):
-        return self.times_rang_out + self.times_picked_up
+        return self.didnt_reach_phone + self.times_picked_up
 
 
 def guess_time_till_pickup(u_i, stats=MonteCarloStats()):
@@ -95,7 +95,7 @@ def guess_time_till_pickup(u_i, stats=MonteCarloStats()):
     if u_i < 0.2:
         stats.busy()
         return time_till_pickup + 3 + 1, False
-    elif .2 < u_i < .5:
+    elif .2 <= u_i < .5:
         stats.unavailable()
         return time_till_pickup + 25 + 1, False
     else:
