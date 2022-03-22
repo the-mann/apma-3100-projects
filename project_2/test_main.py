@@ -10,7 +10,6 @@ class Test(TestCase):
         self.assertListEqual([cdf_inv(i) for i in rand_num_generator(4)],
                              [6.525801577240943, 0.5214836201646981, 1.6353810411952014, 64.88130145944533])
 
-
     def test_51_52_53(self):
         list_of_rand_numbers = [x for x in rand_num_generator(100)]
         self.assertAlmostEqual(0.5157089233398438, list_of_rand_numbers[50])
