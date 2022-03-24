@@ -26,20 +26,21 @@ class Test(TestCase):
         with self.assertRaises(OutOfDomainError) as cm:
             cdf_inv(1.0000001)
 
-    def test_average_of_guess_time_till_pickup(self):
-        x = [guess_time_till_pickup(cdf(n))[0] for n in rand_num_generator(10000)]
-        self.assertAlmostEqual(10, statistics.mean(x))
+    # def test_average_of_guess_time_till_pickup(self):
+    #     x = [n for n in rand_num_generator(10000)]
+    #     y = guess_time_till_pickup(x.pop(), x.pop())[0]
+    #     self.assertAlmostEqual(10, statistics.mean(x))
 
     def test_million_person_4_times(self):
         stats = MonteCarloStats()
-        rand_numbers = [x for x in rand_num_generator(4000000)]
+        rand_numbers = [x for x in rand_num_generator(40000)]
         rand_numbers.reverse()
         # rand_numbers_2 = rand_numbers_2[4:]
         z = []
-        for j in range(100000):
+        for j in range(1000):
             x = 0
             for i in range(4):
-                g = guess_time_till_pickup(rand_numbers.pop(), stats)
+                g = guess_time_till_pickup(rand_numbers.pop(), rand_numbers.pop(), stats)
                 x += g[0]
                 # stop
                 if g[1]:
@@ -52,11 +53,13 @@ class Test(TestCase):
         self.assertAlmostEqual(.5, stats.times_available() / stats.total_times, 1)
 
         # Case 3.a - pick up
-        self.assertAlmostEqual(.5 - .124, stats.times_picked_up / stats.total_times, 2)
+        self.assertAlmostEqual(0.442495126705653, stats.times_picked_up / stats.total_times, 2)
         # Case 3.b - don't reach the phone in time
-        self.assertAlmostEqual(0.124, stats.didnt_reach_phone / stats.total_times, 2)
+        self.assertAlmostEqual(.5 - 0.442495126705653, stats.didnt_reach_phone / stats.total_times, 1)
 
-        self.assertEqual(52.89081954200399, statistics.mean(z))
+        # Overall mean
+        self.assertEqual(40.171824431801525, statistics.mean(z))
+        self.assertEqual(128, max(z))
 
     def test_average_random_number_2_decimal_places(self):
         x = [x_i for x_i in rand_num_generator(100000)]
@@ -68,6 +71,9 @@ class Test(TestCase):
 
     def test_greater_than_25(self):
         self.assertAlmostEqual(0.12451447144412309, 1 - cdf(25))
+
+    def test_less_than_or_equal_to_25(self):
+        self.assertAlmostEqual(0.8754855285558769, cdf(25))
 
     def test_less_than_6(self):
         self.assertAlmostEqual(0.3934693402873666, cdf(6))
